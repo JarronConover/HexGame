@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.IllegalFormatCodePointException;
 import java.util.Objects;
 
 public class HexGame {
@@ -14,13 +13,13 @@ public class HexGame {
 
         this.blueGame = new DisjointSet(size+4);
         for (int i=0; i< this.size; i += sideLength){
-            blueGame.union(124, i);
-            blueGame.union(123, i+sideLength-1);
+            blueGame.union(124-1, i);
+            blueGame.union(123-1, i+sideLength-1);
         }
         this.redGame = new DisjointSet(size+4);
         for (int i=0; i< sideLength; i ++){
-            redGame.union(122, i);
-            redGame.union(125, i+110);
+            redGame.union(122-1, i);
+            redGame.union(125-1, i+110);
         }
     }
     public static final String ANSI_RESET = "\u001B[0m";
@@ -40,6 +39,13 @@ public class HexGame {
         if (displayNeighbors){
             System.out.println(displayNeighbors(position, "blue"));
         }
+        if (isOccupied(position)){
+            return false;
+        }
+        else {
+            grid[position-1] = "B";
+        }
+        //fix this function
         if (blueGame.find(LEFT_EDGE)== blueGame.find(RIGHT_EDGE)){
             return true;
         }
@@ -49,6 +55,12 @@ public class HexGame {
     public boolean playRed(int position, boolean displayNeighbors){
         if (displayNeighbors){
             System.out.println(displayNeighbors(position, "red"));
+        }
+        if (isOccupied(position)){
+            return false;
+        }
+        else {
+            grid[position-1] = "R";
         }
         if (redGame.find(TOP_EDGE)== redGame.find(BOTTOM_EDGE)){
             return true;
@@ -77,14 +89,14 @@ public class HexGame {
         Color[] coloredGrid = new Color[grid.length];
         int index = 0;
         for (String hex : grid ){
-            Color coloredHex = new Color(hex) ;
+            Color coloredHex = new Color(hex);
             coloredGrid[index] = coloredHex;
             index++;
         }
         return coloredGrid;
     }
 
-    private class Color{
+    public static class Color{
         private String color;
         private Color(String identifier){
             if (identifier == "B"){
@@ -92,8 +104,11 @@ public class HexGame {
             } else if (identifier == "R"){
                 this.color = ANSI_RED + "R" + ANSI_RESET;
             } else {
-                this.color = ANSI_WHITE + "0" + ANSI_RESET;
+                this.color = "0";
             }
+        }
+        public String getColor(){
+            return this.color;
         }
     }
 
@@ -108,7 +123,7 @@ public class HexGame {
     private ArrayList<Integer> getNeighborsRed(int position){
         ArrayList<Integer> neighbors = new ArrayList<>();
         int column = position % 11;
-        int row = position / 11 + 1;
+        int row = Math.ceilDiv(position, 11);
 
         if (column != 0){
             neighbors.add(position+1);
@@ -130,32 +145,34 @@ public class HexGame {
             }
             neighbors.add(position + 11);
         } else {
-            neighbors.add(125);
+            neighbors.add(123);
         }
-
         return neighbors;
     }
 
     private ArrayList<Integer> getNeighborsBlue(int position){
         ArrayList<Integer> neighbors = new ArrayList<>();
         int column = position % 11;
-        int row = position / 11 + 1;
+        int row = Math.ceilDiv(position, 11);
 
         if (column != 0){
             neighbors.add(position+1);
-        } else {neighbors.add(124);}
+        } else {neighbors.add(125);}
         if (column != 1){
             neighbors.add(position-1);
-        }else {neighbors.add(123);}
+        }else {neighbors.add(124);}
         if (row != 1){
-            neighbors.add(position - 10);
             neighbors.add(position -11);
+            if (column!= 0){
+                neighbors.add(position - 10);
+            }
         }
         if (row != 11){
-            neighbors.add(position + 10);
             neighbors.add(position + 11);
+            if (column != 1){
+                neighbors.add(position + 10);
+            }
         }
-
         return neighbors;
     }
 }

@@ -2,7 +2,7 @@ public class DisjointSet {
     private int[] set;
 
     public DisjointSet(int size){
-        this.set = new int[size-1];
+        this.set = new int[size];
         for (int i=0; i < size; i++){
             set[i]=i;
         }
