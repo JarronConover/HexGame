@@ -14,8 +14,9 @@ public class DisjointSet {
 
     public int find(int node){
         if (node != set[node]){
-            find(set[node]);
+            node = find(set[node]);
             set[node] = node;
+            return node;
         }
         return node;
     }

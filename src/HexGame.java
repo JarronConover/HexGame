@@ -2,6 +2,18 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class HexGame {
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_RED = "\u001B[31m";
+    private int size;
+    private DisjointSet blueGame;
+    private DisjointSet redGame;
+
+    private int TOP_EDGE = 122;
+    private int RIGHT_EDGE = 125;
+    private int LEFT_EDGE = 124;
+    private int BOTTOM_EDGE = 123;
+
     private String[] grid;
     public HexGame(int sideLength){
         this.size = sideLength * sideLength;
@@ -10,31 +22,10 @@ public class HexGame {
         for (int i=0; i < grid.length; i++){
             grid[i]="0";
         }
-
         this.blueGame = new DisjointSet(size+4);
-        for (int i=0; i< this.size; i += sideLength){
-            blueGame.union(124-1, i);
-            blueGame.union(123-1, i+sideLength-1);
-        }
         this.redGame = new DisjointSet(size+4);
-        for (int i=0; i< sideLength; i ++){
-            redGame.union(122-1, i);
-            redGame.union(125-1, i+110);
-        }
     }
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_WHITE = "\u001B[37m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_RED = "\u001B[31m";
-    private int size;
-    private DisjointSet blueGame;
-    private DisjointSet redGame;
 
-    //Edges: Top: 122; Right: 123; Left: 124; Bottom: 125;
-    private int TOP_EDGE = size+1;
-    private int RIGHT_EDGE = size+2;
-    private int LEFT_EDGE = size+3;
-    private int BOTTOM_EDGE = size+4;
     public boolean playBlue(int position, boolean displayNeighbors){
         if (displayNeighbors){
             System.out.println(displayNeighbors(position, "blue"));
@@ -44,9 +35,18 @@ public class HexGame {
         }
         else {
             grid[position-1] = "B";
+
+            ArrayList<Integer> neighbors = getNeighborsBlue(position);
+            for (int item: neighbors){
+                if (Objects.equals(grid[item-1], "B")){
+                    blueGame.union(position-1, item-1);
+                }else if (item > 121){
+                    blueGame.union(position-1, item-1);
+                }
+            }
         }
-        //fix this function
-        if (blueGame.find(LEFT_EDGE)== blueGame.find(RIGHT_EDGE)){
+        if (blueGame.find(LEFT_EDGE-1)== blueGame.find(RIGHT_EDGE-1)){
+            System.out.print("Blue wins with move at position " + position + "!!");
             return true;
         }
         return false;
@@ -61,8 +61,18 @@ public class HexGame {
         }
         else {
             grid[position-1] = "R";
+            ArrayList<Integer> neighbors = getNeighborsRed(position);
+
+            for (int item: neighbors){
+                if (Objects.equals(grid[item-1], "R")){
+                    redGame.union(position-1, item-1);
+                }else if (item > 121){
+                    redGame.union(position-1, item-1);
+                }
+            }
         }
-        if (redGame.find(TOP_EDGE)== redGame.find(BOTTOM_EDGE)){
+        if (redGame.find(TOP_EDGE-1)== redGame.find(BOTTOM_EDGE-1)){
+            System.out.print("Red wins with move at position " + position + "!!");
             return true;
         }
         return false;
@@ -70,7 +80,7 @@ public class HexGame {
 
     private String displayNeighbors(int position, String color){
         String neighbors = "";
-        ArrayList<Integer> colorNeighbors = new ArrayList<>();
+        ArrayList<Integer> colorNeighbors;
 
         if (Objects.equals(color, "red")){
             colorNeighbors = getNeighborsRed(position);

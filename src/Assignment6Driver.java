@@ -12,23 +12,33 @@ public class Assignment6Driver {
     private static void playGame(String filename) {
         File file = new File(filename);
         try (Scanner input = new Scanner(file)) {
-            // TODO: Write some good stuff here
+            // My Code Here
             HexGame game = new HexGame(11);
 
             int turn = 0;
+            String winner= "";
+
+            boolean isWinner = false;
 
             while (input.hasNext()){
                 String line = input.next();
                 int intLine = Integer.parseInt(line);
 
                 if (turn%2 == 0){
-                    game.playBlue(intLine, false);
+                    isWinner = game.playBlue(intLine, false);
                 }
                 else {
-                    game.playRed(intLine, false);
+                    isWinner = game.playRed(intLine, false);
                 }
                 turn++;
+                if (isWinner){
+                    break;
+                }
             }
+
+
+            System.out.println(winner);
+
             printGrid(game);
         }
         catch (java.io.IOException ex) {
@@ -36,8 +46,7 @@ public class Assignment6Driver {
         }
     }
 
-    //
-    // TODO: You can use this to compare with the output show in the assignment while working on your code
+    // You can use this to compare with the output show in the assignment while working on your code
     private static void testGame() {
         HexGame game = new HexGame(11);
 
@@ -62,7 +71,6 @@ public class Assignment6Driver {
         printGrid(game);
     }
 
-    // TODO: Complete this method
     private static void printGrid(HexGame game) {
         HexGame.Color[] coloredGrid = game.getGrid();
 
